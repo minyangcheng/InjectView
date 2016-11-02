@@ -1,0 +1,1 @@
+include ':app', ':inject-api', ':inject-annotation', ':inject-compiler'
