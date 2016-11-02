@@ -59,55 +59,12 @@ public class InjectProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         mProxyMap.clear();
-        for(Element element : roundEnv.getElementsAnnotatedWith(BindView.class)){
-            if(element.getKind()==ElementKind.FIELD && element instanceof VariableElement){
-                FieldBind bind=new FieldBind((VariableElement) element,mElementUtils);
-                String jsonStr= GsonUtil.toJson(bind);
-                LogUtil.d(jsonStr);
-            }
-//            ProxyClassInfo proxyInfo=mProxyMap.get(fullName);
-//            if(proxyInfo==null){
-//                proxyInfo=new ProxyClassInfo(packageName,className);
-//                proxyInfo.add(variableElement);
-//                mProxyMap.put(fullName, proxyInfo);
-//            }
-        }
+        initProxyMap(roundEnv);
+        writeSourceCode();
+        return true;
+    }
 
-        for(Element element : roundEnv.getElementsAnnotatedWith(OnClick.class)){
-            if(element.getKind()==ElementKind.METHOD && element instanceof ExecutableElement){
-                MethodBind bind=new MethodBind((ExecutableElement) element,mElementUtils);
-                String jsonStr= GsonUtil.toJson(bind);
-                LogUtil.d(jsonStr);
-            }
-//            ProxyClassInfo proxyInfo=mProxyMap.get(fullName);
-//            if(proxyInfo==null){
-//                proxyInfo=new ProxyClassInfo(packageName,className);
-//                proxyInfo.add(variableElement);
-//                mProxyMap.put(fullName, proxyInfo);
-//            }
-        }
-
-        for(Element element : roundEnv.getElementsAnnotatedWith(LayoutRes.class)){
-            if(element.getKind()==ElementKind.CLASS && element instanceof TypeElement){
-                ClassBind bind=new ClassBind((TypeElement) element,mElementUtils);
-                String jsonStr= GsonUtil.toJson(bind);
-                LogUtil.d(jsonStr);
-            }
-//            ProxyClassInfo proxyInfo=mProxyMap.get(fullName);
-//            if(proxyInfo==null){
-//                proxyInfo=new ProxyClassInfo(packageName,className);
-//                proxyInfo.add(variableElement);
-//                mProxyMap.put(fullName, proxyInfo);
-//            }
-        }
-
-        try {
-            int a=0;
-            int b=1/a;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    private void writeSourceCode() {
         for(Map.Entry<String,ProxyClassInfo> entry : mProxyMap.entrySet()){
             try {
                 ProxyClassInfo proxyInfo=entry.getValue();
@@ -120,8 +77,50 @@ public class InjectProcessor extends AbstractProcessor {
                 e.printStackTrace();
             }
         }
+    }
 
-        return true;
+    private void initProxyMap(RoundEnvironment roundEnv) {
+        for(Element element : roundEnv.getElementsAnnotatedWith(BindView.class)){
+            if(element.getKind()==ElementKind.FIELD && element instanceof VariableElement){
+                FieldBind bind=new FieldBind((VariableElement) element,mElementUtils);
+                String jsonStr= GsonUtil.toJson(bind);
+                LogUtil.d(jsonStr);
+                ProxyClassInfo proxyInfo=mProxyMap.get(bind.fullClassName);
+                if(proxyInfo==null){
+                    proxyInfo=new ProxyClassInfo(bind.packageName,bind.className);
+                    mProxyMap.put(bind.fullClassName, proxyInfo);
+                }
+                proxyInfo.add(bind);
+            }
+        }
+
+        for(Element element : roundEnv.getElementsAnnotatedWith(OnClick.class)){
+            if(element.getKind()==ElementKind.METHOD && element instanceof ExecutableElement){
+                MethodBind bind=new MethodBind((ExecutableElement) element,mElementUtils);
+                String jsonStr= GsonUtil.toJson(bind);
+                LogUtil.d(jsonStr);
+                ProxyClassInfo proxyInfo=mProxyMap.get(bind.fullClassName);
+                if(proxyInfo==null){
+                    proxyInfo=new ProxyClassInfo(bind.packageName,bind.className);
+                    mProxyMap.put(bind.fullClassName, proxyInfo);
+                }
+                proxyInfo.add(bind);
+            }
+        }
+
+        for(Element element : roundEnv.getElementsAnnotatedWith(LayoutRes.class)){
+            if(element.getKind()==ElementKind.CLASS && element instanceof TypeElement){
+                ClassBind bind=new ClassBind((TypeElement) element,mElementUtils);
+                String jsonStr= GsonUtil.toJson(bind);
+                LogUtil.d(jsonStr);
+                ProxyClassInfo proxyInfo=mProxyMap.get(bind.fullClassName);
+                if(proxyInfo==null){
+                    proxyInfo=new ProxyClassInfo(bind.packageName,bind.className);
+                    mProxyMap.put(bind.fullClassName, proxyInfo);
+                }
+                proxyInfo.setClassBind(bind);
+            }
+        }
     }
 
     @Override
@@ -144,23 +143,6 @@ public class InjectProcessor extends AbstractProcessor {
         }
         msg="compiling annotation debug : "+msg;
         mMessager.printMessage(Diagnostic.Kind.NOTE, msg);
-    }
-
-    private List<String> getMethodParameterTypes(ExecutableElement executableElement) {
-        List<? extends VariableElement> methodParameters = executableElement.getParameters();
-        if (methodParameters.size()==0){
-            return null;
-        }
-        List<String> types = new ArrayList<>();
-        for (VariableElement variableElement : methodParameters) {
-            TypeMirror methodParameterType = variableElement.asType();
-            if (methodParameterType instanceof TypeVariable) {
-                TypeVariable typeVariable = (TypeVariable) methodParameterType;
-                methodParameterType = typeVariable.getUpperBound();
-            }
-            types.add(methodParameterType.toString());
-        }
-        return types;
     }
 
 }

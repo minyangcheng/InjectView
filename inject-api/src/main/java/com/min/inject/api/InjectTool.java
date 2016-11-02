@@ -1,6 +1,7 @@
 package com.min.inject.api;
 
-import android.util.Log;
+import android.app.Activity;
+import android.view.View;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,14 @@ public class InjectTool {
     private static final String TAG="InjectTool";
 
     private static Map<String,Inject> injectMap=new HashMap<>();
+
+    public static void inject(Activity activity){
+        inject(activity,activity,Provider.ACTIVITY);
+    }
+
+    public static void inject(View view){
+        inject(view,view,Provider.View);
+    }
 
     public static void inject(Object target , Object source,Provider provider){
         Inject inject=findInject(target);

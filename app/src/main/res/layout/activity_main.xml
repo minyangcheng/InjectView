@@ -17,9 +17,9 @@
         android:text="button_2" />
 
     <Button
-        android:id="@+id/btn_actual"
+        android:id="@+id/button_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="actual" />
+        android:text="button_3" />
 
 </LinearLayout>
