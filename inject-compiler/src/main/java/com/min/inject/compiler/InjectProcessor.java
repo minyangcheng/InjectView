@@ -51,6 +51,7 @@ public class InjectProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
+        LogUtil.d("........init........");
         mElementUtils=processingEnv.getElementUtils();
         mMessager=processingEnv.getMessager();
         mFiler= processingEnv.getFiler();
@@ -58,6 +59,7 @@ public class InjectProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        LogUtil.d("........process........");
         mProxyMap.clear();
         initProxyMap(roundEnv);
         writeSourceCode();
@@ -125,6 +127,7 @@ public class InjectProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
+        LogUtil.d("........getSupportedAnnotationTypes........");
         Set<String> types = new LinkedHashSet<>();
         types.add(BindView.class.getCanonicalName());
         types.add(OnClick.class.getCanonicalName());
@@ -134,15 +137,8 @@ public class InjectProcessor extends AbstractProcessor {
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
+        LogUtil.d("........getSupportedSourceVersion........");
         return SourceVersion.latestSupported();
-    }
-
-    private void debug(String msg, Object... args) {
-        if(args.length>0){
-            msg=String.format(msg, args);
-        }
-        msg="compiling annotation debug : "+msg;
-        mMessager.printMessage(Diagnostic.Kind.NOTE, msg);
     }
 
 }

@@ -10,9 +10,7 @@ public class LogUtil {
         if(args.length>0){
             msg=String.format(msg,args);
         }
-        System.out.println("===========================");
         System.out.println(msg);
-        System.out.println("===========================");
     }
 
 }
